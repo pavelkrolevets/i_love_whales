@@ -106,15 +106,6 @@ def training(cost, global_step):
     train_op = optimizer.minimize(cost, global_step=global_step)
     return train_op
 
-
-
-def evaluate(output, y):
-    logits = tf.nn.softmax(output)
-    correct_prediction = tf.equal(tf.argmax(output, 1), tf.argmax(y, 1))
-    accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-    tf.summary.scalar("validation error", (1.0 - accuracy))
-    return accuracy
-
 x = tf.placeholder("float", [None, height, width, 1], name='placehold_x')
 y = tf.placeholder('float', [None], name='placehold_y')
 
