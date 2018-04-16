@@ -23,14 +23,12 @@ labels = data['Id']
 le = preprocessing.LabelEncoder()
 y_train = le.fit_transform(labels)
 
-
-
 #MODEL
 # Architecture
 
 def inference(x):
     phase_train = tf.constant(True)
-    x = tf.reshape(x, shape=[-1, 300, 300, 1])
+    x = tf.reshape(x, shape=[-1, 100, 100, 1])
 
     conv1 = tf.layers.conv2d(inputs=x, filters=32,  kernel_size=[7, 7], padding="same", activation=tf.nn.relu)
     norm1 = tf.layers.batch_normalization(conv1)
@@ -43,22 +41,27 @@ def inference(x):
 
     conv3a = tf.layers.conv2d(inputs=pool2, filters=32, kernel_size=[1, 1], padding="same", activation=tf.nn.relu)
     conv3 = tf.layers.conv2d(inputs=conv3a, filters=64, kernel_size=[3, 3], padding="same", activation=tf.nn.relu)
+    norm3 = tf.layers.batch_normalization(conv3)
 
-    conv4a = tf.layers.conv2d(inputs=conv3, filters=32, kernel_size=[1, 1], padding="same", activation=tf.nn.relu)
+    conv4a = tf.layers.conv2d(inputs=norm3, filters=32, kernel_size=[1, 1], padding="same", activation=tf.nn.relu)
     conv4 = tf.layers.conv2d(inputs=conv4a, filters=64, kernel_size=[3, 3], padding="same", activation=tf.nn.relu)
+    norm4 = tf.layers.batch_normalization(conv4)
+    pool3 = tf.layers.max_pooling2d(inputs=norm4, pool_size=[2, 2], strides=2)
 
-    pool3 = tf.layers.max_pooling2d(inputs=conv4, pool_size=[2, 2], strides=2)
 
-    flat = tf.reshape(pool3, [-1, 37 * 37 * 64])
+    conv5 = tf.layers.conv2d(inputs=pool3, filters=64, kernel_size=[3, 3], padding="same", activation=tf.nn.relu)
+    pool4 = tf.layers.max_pooling2d(inputs=conv5, pool_size=[2, 2], strides=2)
 
+    flat = tf.reshape(pool4, [-1, 6 * 6 * 64])
     fc_1 = tf.layers.dense(inputs=flat, units=128, activation=tf.nn.relu)
-
-    embed = tf.layers.dense(inputs=fc_1, units=128)
+    drop1 = tf.layers.dropout(fc_1)
+    fc_2 = tf.layers.dense(inputs=drop1, units=128, activation=tf.nn.relu)
+    drop2 = tf.layers.dropout(fc_2)
+    embed = tf.layers.dense(inputs=drop2, units=128)
 
     output = tf.nn.l2_normalize(embed, dim=1, epsilon=1e-12, name=None)
 
     return output
-
 
 
 
@@ -69,12 +72,12 @@ def loss(output, labels):
 
 def training(cost, global_step):
     tf.summary.scalar("cost", cost)
-    learning_rate = tf.train.exponential_decay(0.01, global_step, 100, 0.96, staircase=True)
+    learning_rate = tf.train.exponential_decay(0.01, global_step, 100, 0.9, staircase=True)
     optimizer = tf.train.AdamOptimizer(learning_rate)
     train_op = optimizer.minimize(cost, global_step=global_step)
     return train_op
 
-x = tf.placeholder("float", [None, 300, 300, 1], name='placehold_x')
+x = tf.placeholder("float", [None, 100, 100, 1], name='placehold_x')
 y = tf.placeholder('float', [None], name='placehold_y')
 
 output = inference(x)
