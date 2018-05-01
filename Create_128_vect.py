@@ -9,6 +9,8 @@ x_train = np.load('./data/X_train.npy')
 
 """creating embeddings for labels"""
 data = pd.read_csv('./data/train.csv')
+# dropping "new_whales"
+data = data[data.Id != "new_whale"]
 labels = data['Id']
 le = preprocessing.LabelEncoder()
 y_train = le.fit_transform(labels)
@@ -31,7 +33,7 @@ with tf.Session(graph=graph) as sess:
     oper_restore = graph.get_tensor_by_name('inference:0')
 
     embed = []
-    embed_fire = []
+    # embed_fire = []
     # -> TODO feed TEST dataset to model and get 128 vectors, change the size accordinly
     # for i in range(x_test.shape[0]):
     #     number = x_test[i,:]
@@ -41,12 +43,12 @@ with tf.Session(graph=graph) as sess:
     #     prediction = np.reshape(prediction,(128))
     #     embed_fire.append(prediction)
 
-    embed_fire=np.asanyarray(embed_fire)
+    # embed_fire=np.asanyarray(embed_fire)
 
     for i in range(x_train.shape[0]):
         number = x_train[i,:,:,:]
         #print(number)
-        number = np.reshape(number, (1,300,300,1))
+        number = np.reshape(number, (1,100,100,1))
         prediction = sess.run(oper_restore, feed_dict={x: number})
         prediction = np.reshape(prediction,(128))
         embed.append(prediction)
@@ -56,8 +58,8 @@ with tf.Session(graph=graph) as sess:
 
 
 np.save('./np_embeddings/embeddings.npy', embed)
-np.save('./np_embeddings/labels.npy', y_train)
-np.save('./np_embeddings/tets_embed.npy', embed_fire)
+#np.save('./np_embeddings/labels.npy', y_train)
+# np.save('./np_embeddings/tets_embed.npy', embed_fire)
 
 print("Saved")
 
