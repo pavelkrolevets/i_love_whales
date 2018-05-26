@@ -13,10 +13,7 @@ import pandas as pd
 training_epochs = 50
 display_step = 1
 batch_size = 400
-margin = 1.5
-
-
-
+margin = 1.0
 
 def main(_):
 #MODEL
