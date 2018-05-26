@@ -12,7 +12,7 @@ import pandas as pd
 # Parameters
 training_epochs = 50
 display_step = 1
-batch_size = 400
+batch_size = 200
 margin = 1.0
 
 def main(_):
@@ -20,7 +20,7 @@ def main(_):
     # Architecture
     def inference(x):
         phase_train = tf.constant(True)
-        x = tf.reshape(x, shape=[-1, 100, 100, 1])
+        x = tf.reshape(x, shape=[-1, 160, 160, 3])
 
         conv1 = tf.layers.conv2d(inputs=x, filters=64,  kernel_size=[7, 7], padding="same", activation=tf.nn.relu, kernel_initializer=tf.initializers.random_normal)
         norm1 = tf.layers.batch_normalization(conv1)
@@ -47,7 +47,7 @@ def main(_):
 
         pool4 = tf.layers.max_pooling2d(inputs=conv6, pool_size=[2, 2], strides=2)
 
-        flat = tf.reshape(pool4, [-1, 6 * 6 * 256])
+        flat = tf.reshape(pool4, [-1, 10 * 10 * 256])
 
         fc_1 = tf.layers.dense(inputs=flat, units=128)
 
@@ -86,7 +86,7 @@ def main(_):
     classes = len(pd.unique(labels))
     print("Number of classes= ", classes)
 
-    x = tf.placeholder( tf.float32, [None, 100, 100, 1], name='placehold_x')
+    x = tf.placeholder( tf.float32, [None, 160, 160, 3], name='placehold_x')
     y = tf.placeholder( tf.int32, [None], name='placehold_y')
 
     output = inference(x)

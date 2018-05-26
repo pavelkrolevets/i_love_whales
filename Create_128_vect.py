@@ -17,8 +17,8 @@ with tf.Session(graph=graph) as sess:
     saver = tf.train.import_meta_graph("{}.meta".format(checkpoint_file))
     saver.restore(sess, checkpoint_file)
     # We can verify that we can access the list of operations in the graph
-    for op in graph.get_operations():
-        print(op.name)
+    # for op in graph.get_operations():
+    #     #rint(op.name)
     #keep_prob = graph.get_tensor_by_name('keep_prob:0')
     x = graph.get_tensor_by_name('placehold_x:0')
 
@@ -29,7 +29,7 @@ with tf.Session(graph=graph) as sess:
     for i in range(x_train.shape[0]):
         number = x_train[i,:,:,:]
         #print(number)
-        number = np.reshape(number, (1,100,100,1))
+        number = np.reshape(number, (1,160,160,3))
         prediction = sess.run(oper_restore, feed_dict={x: number})
         prediction = np.reshape(prediction,(128))
         embed_train.append(prediction)
@@ -39,7 +39,7 @@ with tf.Session(graph=graph) as sess:
     for i in range(x_test.shape[0]):
         number = x_test[i,:,:,:]
         #print(number)
-        number = np.reshape(number, (1,100,100,1))
+        number = np.reshape(number, (1,160,160,3))
         prediction = sess.run(oper_restore, feed_dict={x: number})
         prediction = np.reshape(prediction,(128))
         embed_test.append(prediction)

@@ -13,6 +13,7 @@ labels = data_train['Id']
 file_names = data_train['Image']
 le = preprocessing.LabelEncoder()
 y_train = le.fit_transform(labels)
+
 #load embeddings
 embed_train = np.load('./np_embeddings/embeddings_train.npy')
 assert embed_train.shape[0] == len(y_train)
