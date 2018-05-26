@@ -30,21 +30,25 @@ assert embed_test.shape[0] == len(y_test)
 
 """Compute distances"""
 prediction = []
+dist_val = []
 start_time = time.time()
 for i in range(embed_test.shape[0]):
     distances = []
-    print('Complited: ', i/embed_test.shape[0])
+    print('Complited: ', i/embed_test.shape[0]*100)
     for j in range(embed_train.shape[0]):
         dist = np.sqrt(np.sum(np.square(np.subtract(embed_test[i, :], embed_train[j, :]))))
         distances.append(dist)
     val, idx = min((val, idx) for (idx, val) in enumerate(distances))
     prediction.append(y_train[idx])
+    dist_val.append(val)
 run_time = time.time() - start_time
-print('Run time: ', run_time)
+print('Run time, min: ', run_time/60)
 
 predicted_data = pd.DataFrame()
 predicted_data['Image'] = y_test
 predicted_data['Id'] = le.inverse_transform(prediction)
-predicted_data.to_csv('submission.csv')
+predicted_data['distance'] = dist_val
+
+predicted_data.to_csv('submission.csv', index=False)
 
 print()
